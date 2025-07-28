@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Lista de Compras Funcional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .category-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .item-checkbox:checked + label {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .item-checkbox:checked + label .item-text {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .print-hidden { display: none; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-hidden { display: block !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-blue-50 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">🛒 Lista de Compras Funcional</h1>
+            <p class="text-gray-600 text-lg">Selecione os itens que deseja comprar para sua dieta saudável</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="flex flex-wrap justify-center gap-4 mb-8 no-print">
+            <button onclick="selectAll()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                ✅ Selecionar Todos
+            </button>
+            <button onclick="clearAll()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                ❌ Limpar Todos
+            </button>
+            <button onclick="generateList()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                📋 Gerar Lista Final
+            </button>
+            <button onclick="printList()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                🖨️ Imprimir
+            </button>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Feira -->
+            <div class="category-card bg-white rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-green-700 mb-4 flex items-center">
+                    🥦 <span class="ml-2">Feira (Frutas e Legumes)</span>
+                </h2>
+                <div class="space-y-2">
+                    <div class="item-container">
+                        <input type="checkbox" id="banana" class="item-checkbox hidden">
+                        <label for="banana" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🍌 Banana</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="maca" class="item-checkbox hidden">
+                        <label for="maca" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🍎 Maçã</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="abacate" class="item-checkbox hidden">
+                        <label for="abacate" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥑 Abacate</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="limao" class="item-checkbox hidden">
+                        <label for="limao" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🍋 Limão</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="laranja" class="item-checkbox hidden">
+                        <label for="laranja" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🍊 Laranja</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="morango" class="item-checkbox hidden">
+                        <label for="morango" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🍓 Morango (ou outra fruta vermelha)</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="cenoura" class="item-checkbox hidden">
+                        <label for="cenoura" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥕 Cenoura</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="beterraba" class="item-checkbox hidden">
+                        <label for="beterraba" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🟣 Beterraba</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="abobrinha" class="item-checkbox hidden">
+                        <label for="abobrinha" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥒 Abobrinha</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="brocolis" class="item-checkbox hidden">
+                        <label for="brocolis" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥦 Brócolis</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="couve" class="item-checkbox hidden">
+                        <label for="couve" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥬 Couve</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="espinafre" class="item-checkbox hidden">
+                        <label for="espinafre" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🌿 Espinafre</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="alface" class="item-checkbox hidden">
+                        <label for="alface" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥬 Alface</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="rucula" class="item-checkbox hidden">
+                        <label for="rucula" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🌱 Rúcula</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="pepino" class="item-checkbox hidden">
+                        <label for="pepino" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🥒 Pepino</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="tomate" class="item-checkbox hidden">
+                        <label for="tomate" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🍅 Tomate</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="cebola" class="item-checkbox hidden">
+                        <label for="cebola" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🧅 Cebola</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="alho" class="item-checkbox hidden">
+                        <label for="alho" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🧄 Alho</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="gengibre" class="item-checkbox hidden">
+                        <label for="gengibre" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-green-50">
+                            <span class="item-text">🫚 Gengibre</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grãos e Cereais -->
+            <div class="category-card bg-white rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-amber-700 mb-4 flex items-center">
+                    🍚 <span class="ml-2">Grãos e Cereais</span>
+                </h2>
+                <div class="space-y-2">
+                    <div class="item-container">
+                        <input type="checkbox" id="arroz" class="item-checkbox hidden">
+                        <label for="arroz" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-amber-50">
+                            <span class="item-text">🍚 Arroz integral ou parboilizado</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="aveia" class="item-checkbox hidden">
+                        <label for="aveia" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-amber-50">
+                            <span class="item-text">🌾 Aveia em flocos</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="quinoa" class="item-checkbox hidden">
+                        <label for="quinoa" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-amber-50">
+                            <span class="item-text">🌾 Quinoa</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="lentilha" class="item-checkbox hidden">
+                        <label for="lentilha" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-amber-50">
+                            <span class="item-text">🟤 Lentilha</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="graodebico" class="item-checkbox hidden">
+                        <label for="graodebico" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-amber-50">
+                            <span class="item-text">🟡 Grão-de-bico</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="feijao" class="item-checkbox hidden">
+                        <label for="feijao" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-amber-50">
+                            <span class="item-text">🫘 Feijão-preto ou carioca</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Oleaginosas e Sementes -->
+            <div class="category-card bg-white rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-orange-700 mb-4 flex items-center">
+                    🥜 <span class="ml-2">Oleaginosas e Sementes</span>
+                </h2>
+                <div class="space-y-2">
+                    <div class="item-container">
+                        <input type="checkbox" id="castanha" class="item-checkbox hidden">
+                        <label for="castanha" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-orange-50">
+                            <span class="item-text">🥜 Castanha-do-pará ou castanha de caju</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="nozes" class="item-checkbox hidden">
+                        <label for="nozes" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-orange-50">
+                            <span class="item-text">🌰 Nozes (opcional)</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="chia" class="item-checkbox hidden">
+                        <label for="chia" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-orange-50">
+                            <span class="item-text">⚫ Semente de chia</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="linhaca" class="item-checkbox hidden">
+                        <label for="linhaca" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-orange-50">
+                            <span class="item-text">🟤 Semente de linhaça</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="girassol" class="item-checkbox hidden">
+                        <label for="girassol" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-orange-50">
+                            <span class="item-text">🌻 Semente de girassol</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Temperos e Condimentos -->
+            <div class="category-card bg-white rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 flex items-center">
+                    🧴 <span class="ml-2">Temperos e Condimentos</span>
+                </h2>
+                <div class="space-y-2">
+                    <div class="item-container">
+                        <input type="checkbox" id="azeite" class="item-checkbox hidden">
+                        <label for="azeite" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-red-50">
+                            <span class="item-text">🫒 Azeite de oliva extra virgem</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="curcuma" class="item-checkbox hidden">
+                        <label for="curcuma" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-red-50">
+                            <span class="item-text">🟡 Cúrcuma (açafrão-da-terra)</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="paprica" class="item-checkbox hidden">
+                        <label for="paprica" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-red-50">
+                            <span class="item-text">🌶️ Páprica doce ou picante</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="pimenta" class="item-checkbox hidden">
+                        <label for="pimenta" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-red-50">
+                            <span class="item-text">⚫ Pimenta-do-reino</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="canela" class="item-checkbox hidden">
+                        <label for="canela" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-red-50">
+                            <span class="item-text">🟤 Canela em pó</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="ervas" class="item-checkbox hidden">
+                        <label for="ervas" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-red-50">
+                            <span class="item-text">🌿 Ervas secas (orégano, alecrim, tomilho)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bebidas Naturais -->
+            <div class="category-card bg-white rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-blue-700 mb-4 flex items-center">
+                    🧃 <span class="ml-2">Bebidas Naturais</span>
+                </h2>
+                <div class="space-y-2">
+                    <div class="item-container">
+                        <input type="checkbox" id="cha" class="item-checkbox hidden">
+                        <label for="cha" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-blue-50">
+                            <span class="item-text">🍵 Chá de camomila, hortelã ou hibisco</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="aguacoco" class="item-checkbox hidden">
+                        <label for="aguacoco" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-blue-50">
+                            <span class="item-text">🥥 Água de coco (opcional)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Outros -->
+            <div class="category-card bg-white rounded-xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-purple-700 mb-4 flex items-center">
+                    🥫 <span class="ml-2">Outros</span>
+                </h2>
+                <div class="space-y-2">
+                    <div class="item-container">
+                        <input type="checkbox" id="iogurte" class="item-checkbox hidden">
+                        <label for="iogurte" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-purple-50">
+                            <span class="item-text">🥛 Iogurte natural ou kefir</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="leitevegetal" class="item-checkbox hidden">
+                        <label for="leitevegetal" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-purple-50">
+                            <span class="item-text">🌱 Leite vegetal (aveia, coco ou amêndoas)</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="farinha" class="item-checkbox hidden">
+                        <label for="farinha" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-purple-50">
+                            <span class="item-text">🌾 Farinha de aveia ou de amêndoas</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="mel" class="item-checkbox hidden">
+                        <label for="mel" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-purple-50">
+                            <span class="item-text">🍯 Mel ou melado de cana (opcional)</span>
+                        </label>
+                    </div>
+                    <div class="item-container">
+                        <input type="checkbox" id="cacau" class="item-checkbox hidden">
+                        <label for="cacau" class="block p-3 rounded-lg cursor-pointer transition-all hover:bg-purple-50">
+                            <span class="item-text">🍫 Cacau em pó 100%</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generated List -->
+        <div id="generatedList" class="bg-white rounded-xl p-6 shadow-lg hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">📋 Sua Lista de Compras</h2>
+            <div id="listContent" class="space-y-2"></div>
+            <div class="mt-6 text-center no-print">
+                <button onclick="copyToClipboard()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-medium transition-colors mr-4">
+                    📋 Copiar Lista
+                </button>
+                <button onclick="hideList()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    ❌ Fechar
+                </button>
+            </div>
+        </div>
+
+        <!-- Print Version -->
+        <div class="print-hidden">
+            <div class="text-center mb-6">
+                <h1 class="text-3xl font-bold">🛒 Lista de Compras Funcional</h1>
+                <p class="text-gray-600">Data: <span id="printDate"></span></p>
+            </div>
+            <div id="printContent"></div>
+        </div>
+    </div>
+
+    <script>
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = true);
+        }
+
+        function clearAll() {
+            const checkboxes = document.querySelectorAll('.item-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+
+        function generateList() {
+            const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+            const listContent = document.getElementById('listContent');
+            const generatedList = document.getElementById('generatedList');
+            
+            if (checkedItems.length === 0) {
+                alert('Selecione pelo menos um item para gerar a lista!');
+                return;
+            }
+
+            listContent.innerHTML = '';
+            
+            const categories = {
+                '🥦 Feira (Frutas e Legumes)': [],
+                '🍚 Grãos e Cereais': [],
+                '🥜 Oleaginosas e Sementes': [],
+                '🧴 Temperos e Condimentos': [],
+                '🧃 Bebidas Naturais': [],
+                '🥫 Outros': []
+            };
+
+            checkedItems.forEach(item => {
+                const label = item.nextElementSibling;
+                const text = label.querySelector('.item-text').textContent;
+                const categoryCard = item.closest('.category-card');
+                const categoryTitle = categoryCard.querySelector('h2').textContent.trim();
+                
+                if (categories[categoryTitle]) {
+                    categories[categoryTitle].push(text);
+                }
+            });
+
+            Object.keys(categories).forEach(category => {
+                if (categories[category].length > 0) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'mb-4';
+                    categoryDiv.innerHTML = `
+                        <h3 class="font-bold text-lg text-gray-800 mb-2">${category}</h3>
+                        <ul class="space-y-1">
+                            ${categories[category].map(item => `<li class="flex items-center"><span class="w-4 h-4 border border-gray-400 rounded mr-3"></span>${item}</li>`).join('')}
+                        </ul>
+                    `;
+                    listContent.appendChild(categoryDiv);
+                }
+            });
+
+            generatedList.classList.remove('hidden');
+            generatedList.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function hideList() {
+            document.getElementById('generatedList').classList.add('hidden');
+        }
+
+        function copyToClipboard() {
+            const listContent = document.getElementById('listContent');
+            const text = listContent.innerText;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Lista copiada para a área de transferência!');
+            }).catch(() => {
+                alert('Erro ao copiar. Tente selecionar o texto manualmente.');
+            });
+        }
+
+        function printList() {
+            const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+            
+            if (checkedItems.length === 0) {
+                alert('Selecione pelo menos um item para imprimir!');
+                return;
+            }
+
+            const printContent = document.getElementById('printContent');
+            const printDate = document.getElementById('printDate');
+            
+            printDate.textContent = new Date().toLocaleDateString('pt-BR');
+            
+            const categories = {
+                '🥦 Feira (Frutas e Legumes)': [],
+                '🍚 Grãos e Cereais': [],
+                '🥜 Oleaginosas e Sementes': [],
+                '🧴 Temperos e Condimentos': [],
+                '🧃 Bebidas Naturais': [],
+                '🥫 Outros': []
+            };
+
+            checkedItems.forEach(item => {
+                const label = item.nextElementSibling;
+                const text = label.querySelector('.item-text').textContent;
+                const categoryCard = item.closest('.category-card');
+                const categoryTitle = categoryCard.querySelector('h2').textContent.trim();
+                
+                if (categories[categoryTitle]) {
+                    categories[categoryTitle].push(text);
+                }
+            });
+
+            printContent.innerHTML = '';
+            
+            Object.keys(categories).forEach(category => {
+                if (categories[category].length > 0) {
+                    const categoryDiv = document.createElement('div');
+                    categoryDiv.className = 'mb-6';
+                    categoryDiv.innerHTML = `
+                        <h3 class="font-bold text-lg mb-3 border-b border-gray-300 pb-1">${category}</h3>
+                        <ul class="space-y-2">
+                            ${categories[category].map(item => `<li class="flex items-center"><span class="w-4 h-4 border-2 border-gray-400 rounded mr-3 inline-block"></span>${item}</li>`).join('')}
+                        </ul>
+                    `;
+                    printContent.appendChild(categoryDiv);
+                }
+            });
+
+            window.print();
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96676e7c5611fe12',t:'MTc1MzczNzc0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
+
